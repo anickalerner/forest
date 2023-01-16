@@ -4,7 +4,8 @@ module.exports = {
   entry: './src/js/main.ts',
   output: {
     filename: '[name].bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    clean: true,
   },
   devServer: {
     static: path.resolve(__dirname, 'dist'),
@@ -50,5 +51,5 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
-  },
+  }
 }
