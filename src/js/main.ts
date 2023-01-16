@@ -1,5 +1,6 @@
 import '../scss/styles.scss'
-import * as bootstrap from 'bootstrap'
+import { Toast } from 'bootstrap';
+import {random, floor, min} from 'lodash';
 
 class TreeType{
     name: string;
@@ -92,8 +93,8 @@ class Forest{
 
     public getRandomCoords(): Coords{
         return {
-            x: Math.floor(Math.random()*this.width), 
-            y: Math.floor(Math.random()*this.height)
+            x: floor(random(0, this.width-1)), 
+            y: floor(random(0, this.height-1))
         };
     }
 
@@ -101,8 +102,8 @@ class Forest{
         let placeFound = false;
         while (!placeFound){
             let coords: Coords = this.getRandomCoords();
-            if (!this.trees[coords.x][coords.y]){
-                this.trees[coords.x][coords.y] = new Tree(coords, name, color, texture);
+            if (!this.trees[coords.y][coords.x]){
+                this.trees[coords.y][coords.x] = new Tree(coords, name, color, texture);
                 placeFound = true;
             }
         }
@@ -113,7 +114,7 @@ class Forest{
         let treesToPlant = 0;
         console.log('Empty slots: ', emptySlots);
         if (emptySlots > 0){
-            let maxSlots = Math.min(emptySlots, (this.width * this.height)/2);
+            let maxSlots = min([emptySlots, (this.width * this.height)/2]);
             treesToPlant = this.getTreeSelectionSize(maxSlots);
             console.log('Planting ', treesToPlant, ' trees');
             for (let index = 0; index < treesToPlant; index++) {
@@ -130,7 +131,7 @@ class Forest{
     public getTreeSelectionSize(emptySlots: number){
         let size: number = 0;
         while (size===0){
-            size = (emptySlots === 1) ? 1: Math.floor(Math.random() * emptySlots);
+            size = (emptySlots === 1) ? 1: floor(random(0, emptySlots));
         }
         return size;
     }
@@ -163,7 +164,7 @@ function placeTree(e: any, forest: Forest){
 
 function showFullForestMessage(){
     const toastLiveExample = document.getElementById('liveToast');
-    let toast = new bootstrap.Toast(toastLiveExample);
+    let toast = new Toast(toastLiveExample);
     toast.show();
 }
 

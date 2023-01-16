@@ -1,9 +1,9 @@
-const path = require('path')
+const path = require('path');
 
 module.exports = {
   entry: './src/js/main.ts',
   output: {
-    filename: 'main.js',
+    filename: '[name].bundle.js',
     path: path.resolve(__dirname, 'dist')
   },
   devServer: {
@@ -41,7 +41,11 @@ module.exports = {
             loader: 'sass-loader'
           }
         ]
-      }
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif|webp)$/i,
+        type: 'asset/resource',
+      },
     ]
   },
   resolve: {

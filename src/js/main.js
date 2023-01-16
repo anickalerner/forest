@@ -1,7 +1,8 @@
 "use strict";
 exports.__esModule = true;
 require("../scss/styles.scss");
-var bootstrap = require("bootstrap");
+var bootstrap_1 = require("bootstrap");
+var lodash_1 = require("lodash");
 var TreeType = /** @class */ (function () {
     function TreeType(p_name, p_color, p_texture) {
         this.name = p_name;
@@ -41,6 +42,9 @@ var Forest = /** @class */ (function () {
     function Forest(w, h) {
         this.width = w;
         this.height = h;
+        this.initTrees();
+    }
+    Forest.prototype.initTrees = function () {
         this.trees = [];
         for (var x = 0; x < this.height; x++) {
             this.trees[x] = [];
@@ -48,7 +52,14 @@ var Forest = /** @class */ (function () {
                 this.trees[x][y] = null;
             }
         }
-    }
+    };
+    Forest.prototype.reset = function () {
+        this.initTrees();
+        this.clearForest();
+    };
+    Forest.prototype.clearForest = function () {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    };
     Forest.prototype.checkEmptySlots = function () {
         var filled = 0;
         for (var y = 0; y < this.height; y++) {
@@ -62,38 +73,41 @@ var Forest = /** @class */ (function () {
     };
     Forest.prototype.getRandomCoords = function () {
         return {
-            x: Math.floor(Math.random() * this.width),
-            y: Math.floor(Math.random() * this.height)
+            x: (0, lodash_1.floor)((0, lodash_1.random)(0, this.width - 1)),
+            y: (0, lodash_1.floor)((0, lodash_1.random)(0, this.height - 1))
         };
     };
     Forest.prototype.tryPlantTree = function (name, color, texture) {
         var placeFound = false;
         while (!placeFound) {
             var coords = this.getRandomCoords();
-            if (!this.trees[coords.x][coords.y]) {
-                this.trees[coords.x][coords.y] = new Tree(coords, name, color, texture);
+            if (!this.trees[coords.y][coords.x]) {
+                this.trees[coords.y][coords.x] = new Tree(coords, name, color, texture);
                 placeFound = true;
             }
         }
     };
     Forest.prototype.plantBunchOfTrees = function (texture) {
-        var emptySlots = Math.min(this.checkEmptySlots(), 50);
+        var emptySlots = this.checkEmptySlots();
         var treesToPlant = 0;
         console.log('Empty slots: ', emptySlots);
         if (emptySlots > 0) {
-            var treesToPlant_1 = this.getTreeSelectionSize(emptySlots);
-            console.log('Planting ', treesToPlant_1, ' trees');
-            for (var index = 0; index < treesToPlant_1; index++) {
+            var maxSlots = (0, lodash_1.min)([emptySlots, (this.width * this.height) / 2]);
+            treesToPlant = this.getTreeSelectionSize(maxSlots);
+            console.log('Planting ', treesToPlant, ' trees');
+            for (var index = 0; index < treesToPlant; index++) {
                 this.tryPlantTree('oak', 'green', texture);
             }
             this.draw();
         }
-        return treesToPlant;
+    };
+    Forest.prototype.isFull = function () {
+        return this.checkEmptySlots() === 0;
     };
     Forest.prototype.getTreeSelectionSize = function (emptySlots) {
         var size = 0;
         while (size === 0) {
-            size = (emptySlots === 1) ? 1 : Math.floor(Math.random() * emptySlots);
+            size = (emptySlots === 1) ? 1 : (0, lodash_1.floor)((0, lodash_1.random)(0, emptySlots));
         }
         return size;
     };
@@ -111,12 +125,21 @@ var Forest = /** @class */ (function () {
     return Forest;
 }());
 function placeTree(e, forest) {
-    var plantedTrees = forest.plantBunchOfTrees(e.target);
-    if (plantedTrees === 0) {
-        var toastLiveExample = document.getElementById('liveToast');
-        var toast = new bootstrap.Toast(toastLiveExample);
-        toast.show();
+    forest.plantBunchOfTrees(e.target);
+    if (forest.isFull()) {
+        var clearButton_1 = document.getElementById('clear-forest');
+        clearButton_1.classList.remove('d-none');
+        clearButton_1.addEventListener('click', function () {
+            forest.reset();
+            clearButton_1.classList.add('d-none');
+        });
+        showFullForestMessage();
     }
+}
+function showFullForestMessage() {
+    var toastLiveExample = document.getElementById('liveToast');
+    var toast = new bootstrap_1.Toast(toastLiveExample);
+    toast.show();
 }
 var forest = new Forest(10, 10);
 var trees = document.getElementsByClassName('treeIcon');
